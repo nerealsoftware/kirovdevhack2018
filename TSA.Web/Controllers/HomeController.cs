@@ -18,7 +18,7 @@ namespace TSA.Web.Controllers
         [HttpGet]
         public IActionResult ModelSelect(int source = -1)
         {
-            if (source == -1) RedirectToAction("Index");
+            if (source == -1) return RedirectToAction("Index");
             return View();
         }
 
