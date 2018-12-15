@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TSA.Interfaces {
     public interface ITopic
     {
-        IReadOnlyList<IDocument> Documents { get; }
+        IReadOnlyList<ValueTuple<IDocument, float>> Documents { get; }
     }
 }

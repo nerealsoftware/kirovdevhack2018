@@ -55,7 +55,7 @@ namespace TSA.Web.Controllers
                         sb.AppendLine(string.Format("<h2> Категория номер {0} </h2>", i + 1));
                         sb.AppendLine("<ul>");
                         var counter = 0;
-                        foreach (var item in topics[i].Documents)
+                        foreach (var item in topics[i].Documents.OrderByDescending( d => d.Item2 ))
                         {
                             counter++;
                             if (counter > 20)
@@ -63,7 +63,12 @@ namespace TSA.Web.Controllers
                                 sb.AppendLine(string.Format("<li>...</li>"));
                                 break;
                             }
-                            sb.AppendLine(string.Format("<li>{0}</li>", System.Net.WebUtility.HtmlEncode(item.Name)));
+
+                            sb.AppendLine(
+                                string.Format(
+                                    "<li>{0} ({1:P})</li>",
+                                    System.Net.WebUtility.HtmlEncode( item.Item1.Name ),
+                                    item.Item2 ) );
                         }
                         sb.AppendLine("</ul>");
                     }
@@ -93,7 +98,7 @@ namespace TSA.Web.Controllers
         public void TeachModel()
         {
             var topicGrouper = new TopicGrouper();
-            var tops = topicGrouper.GroupDocuments(new JsonDocumentSource(), 10);
+            var tops = topicGrouper.GroupDocuments(new JsonDocumentSource(), 30);
             lock (locker)
             {
                 topics = tops;

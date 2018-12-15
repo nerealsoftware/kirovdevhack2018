@@ -19,7 +19,7 @@ namespace TSA.ConsoleTest
             for( int i = 0; i < topics.Count; i++ ) {
                 Console.WriteLine( $"Topic {i} - {topics[ i ].Documents.Count}" );
                 foreach( var document in topics[ i ].Documents.Take( 5 ) ) {
-                    Console.WriteLine( $"    {document.Name}" );
+                    Console.WriteLine( $"    {document.Item1.Name} ({document.Item2*100:F}%)" );
                 }
             }
 

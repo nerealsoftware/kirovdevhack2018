@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.ML;
@@ -95,7 +96,7 @@ namespace TSA.ML
                     }
                 }
 
-                topics[ maxIndex ].Add( result.Document );
+                topics[ maxIndex ].Add( result.Document, maxScore );
             }
 
             return topics;
@@ -103,20 +104,21 @@ namespace TSA.ML
 
         private sealed class Topic : ITopic
         {
-            private readonly List<IDocument> _documents;
+            private readonly List<ValueTuple<IDocument, float>> _documents;
 
             public Topic()
             {
-                _documents = new List<IDocument>();
+                _documents = new List<ValueTuple<IDocument, float>>();
             }
 
             public void Add(
-                IDocument document )
+                IDocument document,
+                float value )
             {
-                _documents.Add( document );
+                _documents.Add( ValueTuple.Create( document, value ) );
             }
 
-            public IReadOnlyList<IDocument> Documents => _documents;
+            public IReadOnlyList<ValueTuple<IDocument, float>> Documents => _documents;
         }
     }
 }
