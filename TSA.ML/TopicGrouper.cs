@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Microsoft.ML;
@@ -50,6 +51,7 @@ namespace TSA.ML
 
             var pipeline = transform.Append( lda );
             var model = pipeline.Fit( data );
+            //context.Model.Save( model, File.Create( "model.dat" ) );
             var transformedData = model.Transform( data );
             var ldaData = transformedData.GetColumn<float[]>( context, "LDA" ).ToList();
 
@@ -74,9 +76,9 @@ namespace TSA.ML
                         maxScore = result.Scores[ i ];
                         maxIndex = i;
                     }
-
-                    topics[ maxIndex ].Add( result.Document );
                 }
+
+                topics[ maxIndex ].Add( result.Document );
             }
 
             return topics;
