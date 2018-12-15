@@ -10,4 +10,15 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TSA.Interfaces\TSA.Interfaces.csproj" />
+    <ProjectReference Include="..\TSA.ML\TSA.ML.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="itmo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

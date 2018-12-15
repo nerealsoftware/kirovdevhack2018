@@ -1,20 +1,122 @@
 ﻿@{
+    var blockId = "blk1";
+    var step = (string)ViewBag.step;
+    var results = (string)ViewBag.results ?? "";
+    switch (step)
+    {
+        case "SelectModel":
+            blockId = "blk2";
+            break;
+        case "Train":
+            blockId = "blk3";
+            break;
+        //case "Topics":
+        //    blockId = "blk4";
+        //    break;
+        case "Results":
+            blockId = "blk4";
+            break;
+    }
+}
+@{
     ViewData["Title"] = "Home Page";
 }
-<br />
-<br />
-<br />
-<ul>
-    <li>
-        <h2 class="tm-block-title d-inline-block"><a href="@Url.Action("ModelSelect","Home",new { source = 1})">Каталог библиотеки ИТМО</a></h2>
-    </li>
-    <li>
-        <h2 class="tm-block-title d-inline-block">Сайт со стихами</h2>
-    </li>
-    <li>
-        <h2 class="tm-block-title d-inline-block">Тексты песен</h2>
-    </li>
-    <li>
-        <h2 class="tm-block-title d-inline-block">Свои данные</h2>
-    </li>
-</ul>
+
+<div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 disabled" id="blk1">
+    <div class="bg-white tm-block">
+        <h1>1. Выбор источника</h1>
+        <br />
+        <form method="post">
+            <ul>
+                <li><h2 class="tm-block-title">Каталог библиотеки ИТМО</h2></li>
+                <li><h2 class="tm-block-title"><s>Сайт со стихами</s></h2></li>
+                <li><h2 class="tm-block-title"><s>Тексты песен</s></h2></li>
+                <li><h2 class="tm-block-title"><s>Свои данные</s></h2></li>
+            </ul>
+            <br />
+            <input type="hidden" name="step" value="SelectSource" />
+            <input type="submit" value="Выбрать" />
+        </form>
+    </div>
+</div>
+<div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 disabled" id="blk2">
+    <div class="bg-white tm-block">
+        <h1>2. Выбор модели</h1>
+        <br />
+        <form method="post">
+            <ul>
+                <li><h2 class="tm-block-title">Простая модель</h2></li>
+                <li><h2 class="tm-block-title"><s>Сложная модель</s></h2></li>
+                <li><h2 class="tm-block-title"><s>Адаптивная модель</s></h2></li>
+            </ul>
+            <br />
+            <input type="hidden" name="step" value="SelectModel"/>
+            <input type="submit" value="Выбрать" />
+        </form>
+    </div>
+</div>
+<div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 disabled" id="blk3">
+    <div class="bg-white tm-block">
+        <h1>3. Обучение</h1>
+        <br />
+        <span id="teachprocess"></span>
+        <form method="post">
+            <input type="hidden" name="step" value="Train" />
+            <input type="button" value="Запустить обучение" onclick="startTrain();" id="blk3btn1" />
+            <input type="submit" value="Продолжить" id="blk3btn2" disabled="disabled"/>
+        </form>
+    </div>
+</div>
+<div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 disabled" id="blk4">
+    <div class="bg-white tm-block">
+        <h1>4. Результаты</h1>
+        <br />
+        <p>@Html.Raw(results)</p>
+        <form method="post">
+            <input type="hidden" name="step" value="Results" />
+            @*<input type="submit" value="Продолжить" id="blk4btn2" disabled="disabled" />*@
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+
+    function startTrain()
+    {
+        $('#teachprocess').text('Обучение запущено...');
+        $.post(
+            '@Url.Action("StartTeach")',
+            {
+            },
+            function (data) {
+                console.log("ajax ok!");
+                $('#blk3btn1').attr('disabled', true);
+                var timeCount = 0;
+                var timerId = setInterval(function () {
+                    console.log("timer started!");
+                    $.post('@Url.Action("IsTeachFinished")', {}, function (obj) {
+                        if (obj && 'success' in obj && obj.success) {
+                            console.log("timer finished!");
+                            clearInterval(timerId);
+                            $('#teachprocess').text('Обучение модели завершено!');
+                            $('#blk3btn2').attr('disabled', false);
+                        }
+                        else
+                        {
+                            timeCount++;
+                            $('#teachprocess').text('Обучение запущено (' + timeCount.toString() + ')...');
+                        }
+                    });
+                }, 1000);
+            }
+        );
+    }
+
+    $(document).ready(function () {
+        
+        $('#blk1 *').attr('disabled', true);
+        $('#blk2 *').attr('disabled', true);
+        $('#blk3 *').attr('disabled', true);
+        $('#@blockId *').attr('disabled', false);
+        $('#blk3btn2').attr('disabled', true);
+    });
+</script>
