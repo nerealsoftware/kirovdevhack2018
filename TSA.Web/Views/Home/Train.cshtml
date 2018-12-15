@@ -1,15 +1,55 @@
-﻿
-@{
-    Layout = null;
-}
+﻿<div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 disabled" id="blk3">
+    <div class="bg-white tm-block">
+        <h1>3. Обучение</h1>
+        <br />
+        <span id="teachprocess"></span>
+        <form method="post" action="@Url.Action("Results","Home")">
+            <input type="hidden" name="step" value="Train" />
+            <input type="button" value="Запустить обучение" onclick="startTrain();" id="blk3btn1" />
+            <input type="submit" value="Продолжить" id="blk3btn2" disabled="disabled" />
+        </form>
+    </div>
+</div>
 
-<!DOCTYPE html>
+<script type="text/javascript">
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Train</title>
-</head>
-<body>
-</body>
-</html>
+    function startTrain()
+    {
+        $('#teachprocess').text('Обучение запущено...');
+        $.post(
+            '@Url.Action("StartTeach")',
+            {
+            },
+            function (data) {
+                console.log("ajax ok!");
+                $('#blk3btn1').attr('disabled', true);
+                var timeCount = 0;
+                var timerId = setInterval(function () {
+                    console.log("timer started!");
+                    $.post('@Url.Action("IsTeachFinished")', {}, function (obj) {
+                        if (obj && 'success' in obj && obj.success) {
+                            console.log("timer finished!");
+                            clearInterval(timerId);
+                            $('#teachprocess').text('Обучение модели завершено!');
+                            $('#blk3btn2').attr('disabled', false);
+                        }
+                        else
+                        {
+                            timeCount++;
+                            $('#teachprocess').text('Обучение запущено (' + timeCount.toString() + ')...');
+                        }
+                    });
+                }, 1000);
+            }
+        );
+    }
+
+    @*$(document).ready(function () {
+
+        $('#blk1 *').attr('disabled', true);
+        $('#blk2 *').attr('disabled', true);
+        $('#blk3 *').attr('disabled', true);
+        $('#@blockId *').attr('disabled', false);
+        $('#blk3btn2').attr('disabled', true);
+    });*@
+</script>
