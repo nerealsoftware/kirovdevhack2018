@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+
+using Newtonsoft.Json;
 
 using TSA.Interfaces;
 using TSA.ML;
@@ -12,8 +15,18 @@ namespace TSA.ConsoleTest
         static void Main(string[] args)
         {
             var trainer = new Trainer();
-            trainer.Run( new TestDocumentSource() );
+            trainer.Run( new JsonDocumentSource() );
             Console.ReadLine();
+        }
+
+        private sealed class JsonDocumentSource : IDocumentSource
+        {
+            public IEnumerable<IDocument> GetDocuments()
+            {
+                var docs = JsonConvert.DeserializeObject<List<TestDocument>>(
+                    File.ReadAllText( @"..\..\..\..\itmo.json" ) );
+                return docs;
+            }
         }
 
         private sealed class TestDocumentSource : IDocumentSource {
@@ -47,7 +60,9 @@ namespace TSA.ConsoleTest
             }
         }
 
-        private sealed class TestDocument : IDocument {
+        public sealed class TestDocument : IDocument {
+            public TestDocument() { }
+
             public TestDocument(
                 string name,
                 string content )
@@ -55,8 +70,10 @@ namespace TSA.ConsoleTest
                 Name = name;
                 Content = content;
             }
-            public string Name { get; }
-            public string Content { get; }
+            [JsonProperty]
+            public string Name { get; set; }
+            [JsonProperty]
+            public string Content { get; set; }
         }
     }
 }
