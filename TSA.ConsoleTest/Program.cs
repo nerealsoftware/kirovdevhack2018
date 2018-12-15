@@ -14,8 +14,11 @@ namespace TSA.ConsoleTest
     {
         static void Main(string[] args)
         {
-            var trainer = new Trainer();
-            trainer.Run( new JsonDocumentSource() );
+            var topicGrouper = new TopicGrouper();
+            var topics = topicGrouper.GroupDocuments( new JsonDocumentSource(), 10 );
+            for( int i = 0; i < topics.Count; i++ ) {
+                Console.WriteLine( $"Topic {i} - {topics[i].Documents.Count}" );
+            }
             Console.ReadLine();
         }
 
