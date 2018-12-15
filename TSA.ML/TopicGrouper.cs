@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Microsoft.ML;
@@ -19,11 +18,32 @@ namespace TSA.ML
             int numberOfGroups )
         {
             var context = new MLContext();
-            var environment = context.Data.GetEnvironment();
+            var data = BuildDataView( context, source );
+            var pipeline = BuildPipeline( context, numberOfGroups );
 
+            var model = pipeline.Fit( data );
+
+            var transformedData = model.Transform( data );
+            var ldaData = transformedData.GetColumn<float[]>( context, "LDA" ).ToList();
+
+            var topics = BuildTopics( source, numberOfGroups, ldaData );
+            return topics;
+        }
+
+        private static IDataView BuildDataView(
+            MLContext context,
+            IDocumentSource source )
+        {
+            var environment = context.Data.GetEnvironment();
             var schema = SchemaDefinition.Create( typeof( IDocument ), SchemaDefinition.Direction.Read );
             var data = environment.CreateStreamingDataView( source.GetDocuments(), schema );
+            return data;
+        }
 
+        private static EstimatorChain<LatentDirichletAllocationTransformer> BuildPipeline(
+            MLContext context,
+            int numberOfGroups )
+        {
             var normalize = context.Transforms.Text.NormalizeText(
                 "Content",
                 "NormalizedContent",
@@ -38,23 +58,20 @@ namespace TSA.ML
             var stopWords = context.Transforms.Text.RemoveStopWords(
                 "WordTokens",
                 language: StopWordsRemovingEstimator.Language.Russian );
-            var wordEmbeddings = context.Transforms.Text.ExtractWordEmbeddings(
-                "WordTokens",
-                "WordEmbeddings",
-                WordEmbeddingsExtractingTransformer.PretrainedModelKind.GloVe50D );
             var wordBag = context.Transforms.Text.ProduceWordBags(
                 "WordTokens",
                 "BagOfWords",
                 weighting: NgramExtractingEstimator.WeightingCriteria.TfIdf );
-            var transform = normalize.Append( tokenize ).Append( stopWords ).Append( wordBag );
             var lda = context.Transforms.Text.LatentDirichletAllocation( "BagOfWords", "LDA", numberOfGroups );
+            var pipeline = normalize.Append( tokenize ).Append( stopWords ).Append( wordBag ).Append( lda );
+            return pipeline;
+        }
 
-            var pipeline = transform.Append( lda );
-            var model = pipeline.Fit( data );
-            //context.Model.Save( model, File.Create( "model.dat" ) );
-            var transformedData = model.Transform( data );
-            var ldaData = transformedData.GetColumn<float[]>( context, "LDA" ).ToList();
-
+        private static List<Topic> BuildTopics(
+            IDocumentSource source,
+            int numberOfGroups,
+            List<float[]> ldaData )
+        {
             var topics = new List<Topic>( numberOfGroups );
             for( var i = 0; i < numberOfGroups; i++ ) {
                 topics.Add( new Topic() );
@@ -84,7 +101,7 @@ namespace TSA.ML
             return topics;
         }
 
-        private class Topic : ITopic
+        private sealed class Topic : ITopic
         {
             private readonly List<IDocument> _documents;
 
