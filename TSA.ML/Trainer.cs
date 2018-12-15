@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -22,10 +23,8 @@ namespace TSA.ML
             var context = new MLContext();
             var environment = context.Data.GetEnvironment();
 
-            var documents = source.GetDocuments().Select(d => new Document(d));
-
-            var schema = SchemaDefinition.Create( typeof( Document ), SchemaDefinition.Direction.Read );
-            var data = environment.CreateStreamingDataView( documents, schema );
+            var schema = SchemaDefinition.Create( typeof( IDocument ), SchemaDefinition.Direction.Read );
+            var data = environment.CreateStreamingDataView( source.GetDocuments(), schema );
 
             var pipeline = context.Transforms.Text.FeaturizeText( "Content", "TextFeatures",
                     s => {
@@ -45,11 +44,12 @@ namespace TSA.ML
             //var embeddings = transformedData.GetColumn<float[]>(context, "Embeddings").Take(10).ToArray();
             //var unigrams = transformedData.GetColumn<float[]>(context, "BagOfWords").Take(10).ToArray();
 
-            var prediction = model.MakePredictionFunction<Document, PredictionResult>( context );
+            var prediction = model.MakePredictionFunction<IDocument, PredictionResult>( context );
 
-            var result = prediction.Predict( documents.First() );
-
-            Console.ReadLine();
+            foreach( var document in source.GetDocuments().Take( 10 ) ) {
+                var result = prediction.Predict( document );
+                Console.WriteLine( $"{result.PredictedLabel} - {document.Content}" );
+            }
         }
 
         /*
@@ -68,20 +68,10 @@ namespace TSA.ML
                 WordEmbeddingsExtractingTransformer.PretrainedModelKind.GloVeTwitter25D ) );*/
     }
 
-    public class Document : IDocument
-    {
-        private IDocument _document;
-        public Document(
-            IDocument document )
-        {
-            _document = document;
-        }
-        public int PredictionLabel { get; set; }
-        public string Name => _document.Name;
-        public string Content => _document.Content;
-    }
     public class PredictionResult
     {
-        public int PredictionLabel { get; set; }
+        public uint PredictedLabel { get; set; }
+        [VectorType(10)]
+        public float[] Score { get; set; }
     }
 }
