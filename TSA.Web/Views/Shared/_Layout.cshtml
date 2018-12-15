@@ -8,7 +8,7 @@
         new { Id = "Index", Name = "Источник данных", Link = "/" },
         new { Id = "ModelSelect", Name = "Выбор модели", Link = "/" },
         new { Id = "Train", Name = "Обучение", Link = "/" },
-        new { Id = "Topics", Name = "Категории", Link = "/" },
+        //new { Id = "Topics", Name = "Категории", Link = "/" },
         new { Id = "Results", Name = "Результаты", Link = "/" }
     };
 
@@ -60,17 +60,14 @@
                         <nav class="navbar navbar-expand-xl navbar-light bg-light">
                             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                 <h1 class="mx-auto">"Систематизатор"</h1>
-                                @*<ul class="navbar-nav mx-auto">
+                                <ul class="navbar-nav mx-auto">
                                     @foreach (var pt in names)
                                     {
-                                        <li class="nav-item">
-                                            <a class="nav-link @( pt.Id.ToString() == action.ToString() ? "active" : "" )" href="@Url.Action((string)pt.Id,controller)">
-                                                @(pt.Name)
-                                                <span class="sr-only">(current)</span>
-                                            </a>
+                                        <li class="nav-item nav-link @( pt.Id.ToString() == action.ToString() ? "active" : "")">
+                                            @(pt.Name)
                                         </li>
                                     }
-                                </ul>*@
+                                </ul>
                             </div>
                         </nav>
                     </div>
@@ -79,14 +76,14 @@
                 <div class="row tm-content-row tm-mt-big">
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                         <div class="bg-white tm-block">
-                            @*@foreach (var pt in names)
+                            @foreach (var pt in names)
                             {
                                 if (pt.Id.ToString() == action.ToString())
                                 {
                                     <h1>@pt.Name</h1>
                                     break;
                                 }
-                            }*@
+                            }
                             @RenderBody()
                         </div>
                     </div>
@@ -94,8 +91,7 @@
                 <footer class="row tm-mt-small">
                     <div class="col-12 font-weight-light">
                         <p class="d-inline-block tm-bg-black text-white py-2 px-4">
-                            Copyright &copy; 2018 Admin Dashboard . Created by
-                            <a href="http://www.tooplate.com" class="text-white tm-footer-link">Tooplate</a>
+                            Copyright &copy; 2018 Nereal Software
                         </p>
                     </div>
                 </footer>

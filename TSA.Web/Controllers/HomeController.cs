@@ -42,36 +42,6 @@ namespace TSA.Web.Controllers
         [HttpPost]
         public IActionResult Index(string step)
         {
-            if (step == "SelectSource") step = "SelectModel";
-            else if (step == "SelectModel") step = "Train";
-            else if (step == "Train")
-            {
-                step = "Results"; //step = "Topics";
-                if (topics != null)
-                {
-                    var sb = new StringBuilder();
-                    for (int i = 0; i < topics.Count; i++)
-                    {
-                        sb.AppendLine(string.Format("<h2> Категория номер {0} </h2>", i + 1));
-                        sb.AppendLine("<ul>");
-                        var counter = 0;
-                        foreach (var item in topics[i].Documents)
-                        {
-                            counter++;
-                            if (counter > 20)
-                            {
-                                sb.AppendLine(string.Format("<li>...</li>"));
-                                break;
-                            }
-                            sb.AppendLine(string.Format("<li>{0}</li>", System.Net.WebUtility.HtmlEncode(item.Name)));
-                        }
-                        sb.AppendLine("</ul>");
-                    }
-                    ViewBag.results = sb.ToString();
-                }
-            }
-            //else if (step == "Topics") step = "Results";
-            ViewBag.step = step;
             return View();
         }
 
@@ -115,26 +85,14 @@ namespace TSA.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult ModelSelect(MLModel model)
+        public IActionResult ModelSelect(string step)
         {
-            model.Step = MLModel.CurrentStep.SelectModel;
-            //if (source == -1) return RedirectToAction("Index");
-            return View(model);
+            return View();
         }
 
         public IActionResult Train(int source = -1, int model = -1)
         {
-            if ((source == -1) && (model == -1)) return RedirectToAction("Index");
-            if (model == -1) return RedirectToAction("ModelSelect");
-            var thread = new Thread(Test);
-            thread.Start();
             return View();
-        }
-
-        public void Test()
-        {
-            Thread.Sleep(10000);
-            System.Diagnostics.Debug.WriteLine("Тест");
         }
 
         public IActionResult Topics()
@@ -144,6 +102,28 @@ namespace TSA.Web.Controllers
 
         public IActionResult Results()
         {
+            if (topics != null)
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < topics.Count; i++)
+                {
+                    sb.AppendLine(string.Format("<h2> Категория номер {0} </h2>", i + 1));
+                    sb.AppendLine("<ul>");
+                    var counter = 0;
+                    foreach (var item in topics[i].Documents)
+                    {
+                        counter++;
+                        if (counter > 20)
+                        {
+                            sb.AppendLine(string.Format("<li>...</li>"));
+                            break;
+                        }
+                        sb.AppendLine(string.Format("<li>{0}</li>", System.Net.WebUtility.HtmlEncode(item.Name)));
+                    }
+                    sb.AppendLine("</ul>");
+                }
+                ViewBag.results = sb.ToString();
+            }
             return View();
         }
 

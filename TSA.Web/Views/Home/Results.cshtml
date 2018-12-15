@@ -1,15 +1,14 @@
-﻿
-@{
-    Layout = null;
+﻿@{ 
+    var results = (string)ViewBag.results ?? "";
 }
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Results</title>
-</head>
-<body>
-</body>
-</html>
+<div class="col-xl-10 col-lg-10 col-md-12 col-sm-12 disabled" id="blk4">
+    <div class="bg-white tm-block">
+        <h1>4. Результаты</h1>
+        <br />
+        <p>@Html.Raw(results)</p>
+        <form method="post">
+            <input type="hidden" name="step" value="Results" />
+            @*<input type="submit" value="Продолжить" id="blk4btn2" disabled="disabled" />*@
+        </form>
+    </div>
+</div>
